@@ -1,0 +1,366 @@
+{
+  "movements": [
+    {
+      "id": "goblet-squat",
+      "name": "Goblet squat",
+      "pattern": "squat",
+      "cue": "Heels down, knees tracking over the toes, chest up.",
+      "datasetId": "Goblet_Squat",
+      "note": "Photo shows a kettlebell — hold a dumbbell vertically against your chest instead.",
+      "images": [
+        "img/Goblet_Squat/0.jpg",
+        "img/Goblet_Squat/1.jpg"
+      ],
+      "instructions": [
+        "Stand holding a light kettlebell by the horns close to your chest. This will be your starting position.",
+        "Squat down between your legs until your hamstrings are on your calves. Keep your chest and head up and your back straight.",
+        "At the bottom position, pause and use your elbows to push your knees out. Return to the starting position, and repeat for 10-20 repetitions."
+      ],
+      "primaryMuscles": [
+        "quadriceps"
+      ],
+      "equipment": "kettlebells"
+    },
+    {
+      "id": "db-floor-press",
+      "name": "DB floor press",
+      "pattern": "push",
+      "cue": "Elbows at 45°, not flared. The floor limits the range — that's a feature right now.",
+      "datasetId": "Dumbbell_Floor_Press",
+      "note": null,
+      "images": [
+        "img/Dumbbell_Floor_Press/0.jpg",
+        "img/Dumbbell_Floor_Press/1.jpg"
+      ],
+      "instructions": [
+        "Lay on the floor holding dumbbells in your hands. Your knees can be bent. Begin with the weights fully extended above you.",
+        "Lower the weights until your upper arm comes in contact with the floor. You can tuck your elbows to emphasize triceps size and strength, or to focus on your chest angle your arms to the side.",
+        "Pause at the bottom, and then bring the weight together at the top by extending through the elbows."
+      ],
+      "primaryMuscles": [
+        "triceps"
+      ],
+      "equipment": "dumbbell"
+    },
+    {
+      "id": "db-romanian-deadlift",
+      "name": "DB Romanian deadlift",
+      "pattern": "hinge",
+      "cue": "Push the hips back, flat back. Felt in the hamstrings, never the lower back.",
+      "datasetId": "Stiff-Legged_Dumbbell_Deadlift",
+      "note": null,
+      "images": [
+        "img/Stiff-Legged_Dumbbell_Deadlift/0.jpg",
+        "img/Stiff-Legged_Dumbbell_Deadlift/1.jpg"
+      ],
+      "instructions": [
+        "Grasp a couple of dumbbells holding them by your side at arm's length.",
+        "Stand with your torso straight and your legs spaced using a shoulder width or narrower stance. The knees should be slightly bent. This is your starting position.",
+        "Keeping the knees stationary, lower the dumbbells to over the top of your feet by bending at the waist while keeping your back straight. Keep moving forward as if you were going to pick something from the floor until you feel a stretch on the hamstrings. Exhale as you perform this movement",
+        "Start bringing your torso up straight again by extending your hips and waist until you are back at the starting position. Inhale as you perform this movement.",
+        "Repeat for the recommended amount of repetitions."
+      ],
+      "primaryMuscles": [
+        "hamstrings"
+      ],
+      "equipment": "dumbbell"
+    },
+    {
+      "id": "one-arm-db-row",
+      "name": "One-arm DB row",
+      "pattern": "pull",
+      "cue": "Brace on a bench or your knee. Pull to the hip, not the chest.",
+      "datasetId": "One-Arm_Dumbbell_Row",
+      "note": null,
+      "images": [
+        "img/One-Arm_Dumbbell_Row/0.jpg",
+        "img/One-Arm_Dumbbell_Row/1.jpg"
+      ],
+      "instructions": [
+        "Choose a flat bench and place a dumbbell on each side of it.",
+        "Place the right leg on top of the end of the bench, bend your torso forward from the waist until your upper body is parallel to the floor, and place your right hand on the other end of the bench for support.",
+        "Use the left hand to pick up the dumbbell on the floor and hold the weight while keeping your lower back straight. The palm of the hand should be facing your torso. This will be your starting position.",
+        "Pull the resistance straight up to the side of your chest, keeping your upper arm close to your side and keeping the torso stationary. Breathe out as you perform this step. Tip: Concentrate on squeezing the back muscles once you reach the full contracted position. Also, make sure that the force is performed with the back muscles and not the arms. Finally, the upper torso should remain stationary and only the arms should move. The forearms should do no other work except for holding the dumbbell; therefore do not try to pull the dumbbell up using the forearms.",
+        "Lower the resistance straight down to the starting position. Breathe in as you perform this step.",
+        "Repeat the movement for the specified amount of repetitions.",
+        "Switch sides and repeat again with the other arm."
+      ],
+      "primaryMuscles": [
+        "middle back"
+      ],
+      "equipment": "dumbbell"
+    },
+    {
+      "id": "db-overhead-press",
+      "name": "DB overhead press",
+      "pattern": "push",
+      "cue": "Ribs down, don't arch. Use a band press if the DBs are too heavy to control.",
+      "datasetId": "Dumbbell_Shoulder_Press",
+      "note": null,
+      "images": [
+        "img/Dumbbell_Shoulder_Press/0.jpg",
+        "img/Dumbbell_Shoulder_Press/1.jpg"
+      ],
+      "instructions": [
+        "While holding a dumbbell in each hand, sit on a military press bench or utility bench that has back support. Place the dumbbells upright on top of your thighs.",
+        "Now raise the dumbbells to shoulder height one at a time using your thighs to help propel them up into position.",
+        "Make sure to rotate your wrists so that the palms of your hands are facing forward. This is your starting position.",
+        "Now, exhale and push the dumbbells upward until they touch at the top.",
+        "Then, after a brief pause at the top contracted position, slowly lower the weights back down to the starting position while inhaling.",
+        "Repeat for the recommended amount of repetitions."
+      ],
+      "primaryMuscles": [
+        "shoulders"
+      ],
+      "equipment": "dumbbell"
+    },
+    {
+      "id": "plank",
+      "name": "Plank",
+      "pattern": "core",
+      "cue": "Squeeze the glutes. When the hips sag the set is over — that's the real rep count.",
+      "datasetId": "Plank",
+      "note": null,
+      "images": [
+        "img/Plank/0.jpg",
+        "img/Plank/1.jpg"
+      ],
+      "instructions": [
+        "Get into a prone position on the floor, supporting your weight on your toes and your forearms. Your arms are bent and directly below the shoulder.",
+        "Keep your body straight at all times, and hold this position as long as possible. To increase difficulty, an arm or leg can be raised."
+      ],
+      "primaryMuscles": [
+        "abdominals"
+      ],
+      "equipment": "body only"
+    },
+    {
+      "id": "db-split-squat",
+      "name": "DB split squat",
+      "pattern": "squat",
+      "cue": "Back knee toward the floor, front shin vertical. Hold a wall if balance is the limiter.",
+      "datasetId": "Split_Squat_with_Dumbbells",
+      "note": null,
+      "images": [
+        "img/Split_Squat_with_Dumbbells/0.jpg",
+        "img/Split_Squat_with_Dumbbells/1.jpg"
+      ],
+      "instructions": [
+        "Position yourself into a staggered stance with the rear foot elevated and front foot forward.",
+        "Hold a dumbbell in each hand, letting them hang at the sides. This will be your starting position.",
+        "Begin by descending, flexing your knee and hip to lower your body down. Maintain good posture througout the movement. Keep the front knee in line with the foot as you perform the exercise.",
+        "At the bottom of the movement, drive through the heel to extend the knee and hip to return to the starting position."
+      ],
+      "primaryMuscles": [
+        "quadriceps"
+      ],
+      "equipment": "dumbbell"
+    },
+    {
+      "id": "pushup",
+      "name": "Push-up",
+      "pattern": "push",
+      "cue": "Elevate your hands if ten clean reps aren't there yet. Clean reps only.",
+      "datasetId": "Pushups",
+      "note": null,
+      "images": [
+        "img/Pushups/0.jpg",
+        "img/Pushups/1.jpg"
+      ],
+      "instructions": [
+        "Lie on the floor face down and place your hands about 36 inches apart while holding your torso up at arms length.",
+        "Next, lower yourself downward until your chest almost touches the floor as you inhale.",
+        "Now breathe out and press your upper body back up to the starting position while squeezing your chest.",
+        "After a brief pause at the top contracted position, you can begin to lower yourself downward again for as many repetitions as needed."
+      ],
+      "primaryMuscles": [
+        "chest"
+      ],
+      "equipment": "body only"
+    },
+    {
+      "id": "db-incline-press",
+      "name": "DB incline press",
+      "pattern": "push",
+      "cue": "The alternative to the push-up — same job, different angle. Pick one, not both.",
+      "datasetId": "Incline_Dumbbell_Press",
+      "note": null,
+      "images": [
+        "img/Incline_Dumbbell_Press/0.jpg",
+        "img/Incline_Dumbbell_Press/1.jpg"
+      ],
+      "instructions": [
+        "Lie back on an incline bench with a dumbbell in each hand atop your thighs. The palms of your hands will be facing each other.",
+        "Then, using your thighs to help push the dumbbells up, lift the dumbbells one at a time so that you can hold them at shoulder width.",
+        "Once you have the dumbbells raised to shoulder width, rotate your wrists forward so that the palms of your hands are facing away from you. This will be your starting position.",
+        "Be sure to keep full control of the dumbbells at all times. Then breathe out and push the dumbbells up with your chest.",
+        "Lock your arms at the top, hold for a second, and then start slowly lowering the weight. Tip Ideally, lowering the weights should take about twice as long as raising them.",
+        "Repeat the movement for the prescribed amount of repetitions.",
+        "When you are done, place the dumbbells back on your thighs and then on the floor. This is the safest manner to release the dumbbells."
+      ],
+      "primaryMuscles": [
+        "chest"
+      ],
+      "equipment": "dumbbell"
+    },
+    {
+      "id": "db-hip-thrust",
+      "name": "DB hip thrust",
+      "pattern": "hinge",
+      "cue": "One-second pause at the top, ribs down. Don't hyperextend.",
+      "datasetId": "Barbell_Hip_Thrust",
+      "note": "Photo shows a barbell — rest a single dumbbell across your hips instead.",
+      "images": [
+        "img/Barbell_Hip_Thrust/0.jpg",
+        "img/Barbell_Hip_Thrust/1.jpg"
+      ],
+      "instructions": [
+        "Begin seated on the ground with a bench directly behind you. Have a loaded barbell over your legs. Using a fat bar or having a pad on the bar can greatly reduce the discomfort caused by this exercise.",
+        "Roll the bar so that it is directly above your hips, and lean back against the bench so that your shoulder blades are near the top of it.",
+        "Begin the movement by driving through your feet, extending your hips vertically through the bar. Your weight should be supported by your shoulder blades and your feet. Extend as far as possible, then reverse the motion to return to the starting position."
+      ],
+      "primaryMuscles": [
+        "glutes"
+      ],
+      "equipment": "barbell"
+    },
+    {
+      "id": "band-lat-pulldown",
+      "name": "Band lat pulldown",
+      "pattern": "pull",
+      "cue": "Pull the elbows down to the ribs, not the hands to the chest.",
+      "datasetId": "One_Arm_Lat_Pulldown",
+      "note": "Photo shows a cable machine — anchor a band high on a door or beam instead.",
+      "images": [
+        "img/One_Arm_Lat_Pulldown/0.jpg",
+        "img/One_Arm_Lat_Pulldown/1.jpg"
+      ],
+      "instructions": [
+        "Select an appropriate weight and adjust the knee pad to help keep you down. Grasp the handle with a pronated grip. This will be your starting position.",
+        "Pull the handle down, squeezing your elbow to your side as you flex the elbow.",
+        "Pause at the bottom of the motion, and then slowly return the handle to the starting position.",
+        "For multiple repetitions, avoid completely returning the weight to keep tension on the muscles being worked."
+      ],
+      "primaryMuscles": [
+        "lats"
+      ],
+      "equipment": "cable"
+    },
+    {
+      "id": "db-lateral-raise",
+      "name": "DB lateral raise",
+      "pattern": "push",
+      "cue": "Genuinely light. This is not a strength lift, it's shoulder health.",
+      "datasetId": "Side_Lateral_Raise",
+      "note": null,
+      "images": [
+        "img/Side_Lateral_Raise/0.jpg",
+        "img/Side_Lateral_Raise/1.jpg"
+      ],
+      "instructions": [
+        "Pick a couple of dumbbells and stand with a straight torso and the dumbbells by your side at arms length with the palms of the hand facing you. This will be your starting position.",
+        "While maintaining the torso in a stationary position (no swinging), lift the dumbbells to your side with a slight bend on the elbow and the hands slightly tilted forward as if pouring water in a glass. Continue to go up until you arms are parallel to the floor. Exhale as you execute this movement and pause for a second at the top.",
+        "Lower the dumbbells back down slowly to the starting position as you inhale.",
+        "Repeat for the recommended amount of repetitions."
+      ],
+      "primaryMuscles": [
+        "shoulders"
+      ],
+      "equipment": "dumbbell"
+    },
+    {
+      "id": "dead-bug",
+      "name": "Dead bug",
+      "pattern": "core",
+      "cue": "Lower back stays flat on the floor. That is the entire exercise.",
+      "datasetId": "Dead_Bug",
+      "note": null,
+      "images": [
+        "img/Dead_Bug/0.jpg",
+        "img/Dead_Bug/1.jpg"
+      ],
+      "instructions": [
+        "Begin lying on your back with your hands extended above you toward the ceiling.",
+        "Bring your feet, knees, and hips up to 90 degrees.",
+        "Exhale hard to bring your ribcage down and flatten your back onto the floor, rotating your pelvis up and squeezing your glutes. Hold this position throughout the movement. This will be your starting position.",
+        "Initiate the exercise by extending one leg, straightening the knee and hip to bring the leg just above the ground.",
+        "Maintain the position of your lumbar and pelvis as you perform the movement, as your back is going to want to arch.",
+        "Stay tight and return the working leg to the starting position.",
+        "Repeat on the opposite side, alternating until the set is complete."
+      ],
+      "primaryMuscles": [
+        "abdominals"
+      ],
+      "equipment": "body only"
+    },
+    {
+      "id": "suitcase-carry",
+      "name": "Suitcase carry",
+      "pattern": "carry",
+      "cue": "Don't lean away from the weight. Walk tall and slow.",
+      "datasetId": "Farmers_Walk",
+      "note": "Photo shows a two-handed farmer's walk — carry one dumbbell, one side at a time.",
+      "images": [
+        "img/Farmers_Walk/0.jpg",
+        "img/Farmers_Walk/1.jpg"
+      ],
+      "instructions": [
+        "There are various implements that can be used for the farmers walk. These can also be performed with heavy dumbbells or short bars if these implements aren't available. Begin by standing between the implements.",
+        "After gripping the handles, lift them up by driving through your heels, keeping your back straight and your head up.",
+        "Walk taking short, quick steps, and don't forget to breathe. Move for a given distance, typically 50-100 feet, as fast as possible."
+      ],
+      "primaryMuscles": [
+        "forearms"
+      ],
+      "equipment": "other"
+    },
+    {
+      "id": "hip-90-90",
+      "name": "90/90 hip switches",
+      "pattern": "mobility",
+      "cue": "Sit tall and switch slowly. Go hands-free once you can.",
+      "datasetId": null,
+      "note": null,
+      "images": [],
+      "instructions": [],
+      "primaryMuscles": [],
+      "equipment": null
+    },
+    {
+      "id": "thoracic-rotations",
+      "name": "Thoracic rotations",
+      "pattern": "mobility",
+      "cue": "Rotate from the ribs, not the lower back.",
+      "datasetId": null,
+      "note": null,
+      "images": [],
+      "instructions": [],
+      "primaryMuscles": [],
+      "equipment": null
+    },
+    {
+      "id": "ankle-rocks",
+      "name": "Ankle rocks",
+      "pattern": "mobility",
+      "cue": "Heel glued to the floor, drive the knee forward over the toes.",
+      "datasetId": null,
+      "note": null,
+      "images": [],
+      "instructions": [],
+      "primaryMuscles": [],
+      "equipment": null
+    },
+    {
+      "id": "hamstring-stretch",
+      "name": "Hamstring stretch",
+      "pattern": "mobility",
+      "cue": "Breathe out into it. Don't bounce.",
+      "datasetId": null,
+      "note": null,
+      "images": [],
+      "instructions": [],
+      "primaryMuscles": [],
+      "equipment": null
+    }
+  ]
+}
