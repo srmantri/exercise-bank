@@ -2,7 +2,10 @@
    than the plain text it replaced, so the whole app + every photo is precached. */
 'use strict';
 
-var CACHE = 'eb-v1';
+/* Bump this on every deploy that changes app.js, styles.css or the data.
+   The activate handler deletes every other cache, so a new name is what
+   forces an already-installed client onto the new build. */
+var CACHE = 'eb-v2';
 var CORE = [
   './',
   './index.html',

@@ -90,3 +90,16 @@ underscore would still be served.
 
 This repository holds exercise names, coaching cues, public-domain photographs and the app
 code. Nothing else — no personal, financial or health data of any kind.
+
+## Deploying a change
+
+```bash
+python tools/build_data.py     # if the prescription changed
+node tools/smoke_test.js       # must pass
+# bump CACHE in sw.js, e.g. eb-v2 -> eb-v3
+git add -A && git commit && git push
+```
+
+**Bumping `CACHE` in `sw.js` is not optional.** The service worker serves cache-first, so a
+phone that already has the old build will keep showing it until the cache name changes. Skip
+the bump and your change silently doesn't reach the device that matters.
