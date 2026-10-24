@@ -154,6 +154,13 @@ button:active { transform: scale(.99); }
 .mv-body h3 { margin: 0 0 3px; font-size: 1.08rem; }
 .pres { color: var(--accent); font-weight: 600; font-size: .98rem; }
 .load { color: var(--ink-dim); font-size: .88rem; }
+/* marks a movement the guided timer counts down for you */
+.timed {
+  display: inline-block; margin-left: 4px; padding: 1px 7px;
+  border: 1px solid var(--accent); border-radius: 999px;
+  font-size: .7rem; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; vertical-align: 1px;
+}
 .cue { margin-top: 7px; font-size: .93rem; }
 .last { margin-top: 6px; font-size: .84rem; color: var(--ink-faint); }
 

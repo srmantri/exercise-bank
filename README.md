@@ -36,8 +36,24 @@ Full-screen: movement, set counter, target reps, the cue. "Set done" starts a re
 with a progress ring and a beep at 3-2-1-0, then auto-advances. Rest length comes from
 `restSec` in the prescription, so the timer always matches the plan.
 
-The countdown is computed from a wall-clock deadline (`Date.now()`), never by accumulating
+**Two kinds of work, two behaviours.** A rep-counted movement (3 × 10 goblet squats) needs no
+work timer — you count reps and press "Set done". A *timed* movement carries `holdSec` and gets
+a counted-down work interval instead:
+
+| Field | Effect |
+|---|---|
+| `holdSec: 30` | the set is a 30-second hold; the button reads "Start 30 s" and counts down |
+| `sides: 2` | the hold runs once per side, with a "Switch sides" screen between |
+
+A hold can always be ended early — a plank is over when the hips sag, not when the clock says
+so. `build_data.py` asserts that `holdSec` matches the number printed on the card, so the timer
+can never count down something different from what you were told to do.
+
+Both countdowns are computed from a wall-clock deadline (`Date.now()`), never by accumulating
 interval ticks — a timer that drifts is worse than no timer.
+
+A kg field appears only for loaded, rep-counted work: not for a hold, and not for anything
+marked bodyweight.
 
 ### Working weights
 

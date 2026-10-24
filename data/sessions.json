@@ -59,6 +59,7 @@
           "movement": "plank",
           "sets": 3,
           "reps": "30 s",
+          "holdSec": 30,
           "load": "Bodyweight",
           "restSec": 45
         },
@@ -128,7 +129,9 @@
         },
         {
           "movement": "hamstring-stretch",
-          "prescription": "45 s each side"
+          "prescription": "45 s each side",
+          "holdSec": 45,
+          "sides": 2
         }
       ]
     },

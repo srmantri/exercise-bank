@@ -121,7 +121,7 @@ SESSIONS = [
           "load": "Your heaviest DB", "restSec": 60},
          {"movement": "db-overhead-press", "sets": 3, "reps": "10",
           "load": "Your lightest DB", "restSec": 60},
-         {"movement": "plank", "sets": 3, "reps": "30 s",
+         {"movement": "plank", "sets": 3, "reps": "30 s", "holdSec": 30,
           "load": "Bodyweight", "restSec": 45},
          {"label": "Cool-down", "duration": "5 min",
           "detail": "Quad, hamstring and chest stretch, 30 s each."},
@@ -153,7 +153,8 @@ SESSIONS = [
          {"movement": "hip-90-90", "prescription": "x10 each side"},
          {"movement": "thoracic-rotations", "prescription": "x10 each side"},
          {"movement": "ankle-rocks", "prescription": "x15 each side"},
-         {"movement": "hamstring-stretch", "prescription": "45 s each side"},
+         {"movement": "hamstring-stretch", "prescription": "45 s each side",
+          "holdSec": 45, "sides": 2},
      ]},
 
     {"id": "strength-b", "day": "Thu 29 Oct", "name": "Strength B — full body",
@@ -245,6 +246,8 @@ with open(os.path.join(ROOT, "data", "sessions.json"), "w", encoding="utf-8") as
     json.dump({"week": WEEK, "sessions": SESSIONS}, f, indent=2, ensure_ascii=False)
 
 # ── integrity checks ───────────────────────────────────────────────────────
+import re
+
 ids = {m["id"] for m in movements}
 problems = []
 for s in SESSIONS:
@@ -252,6 +255,17 @@ for s in SESSIONS:
         mv = it.get("movement")
         if mv and mv not in ids:
             problems.append("session %s references unknown movement %r" % (s["id"], mv))
+        # a work timer must agree with the number the card displays, or the app
+        # would count down something different from what you're told to do
+        if it.get("holdSec"):
+            shown = it.get("reps") or it.get("prescription") or ""
+            nums = [int(n) for n in re.findall(r"\d+", shown)]
+            if it["holdSec"] not in nums:
+                problems.append("%s/%s: holdSec=%s not found in displayed %r"
+                                % (s["id"], mv, it["holdSec"], shown))
+            if it.get("sides", 1) == 2 and "each side" not in shown:
+                problems.append("%s/%s: sides=2 but %r doesn't say 'each side'"
+                                % (s["id"], mv, shown))
 for m in movements:
     if m["datasetId"] and len(m["images"]) < 2:
         problems.append("%s has %d images" % (m["id"], len(m["images"])))

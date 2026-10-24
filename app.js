@@ -144,7 +144,10 @@ function movementCardHTML(it) {
 
   var h = '<div class="mv"><div class="mv-top">' + framesHTML(mv, false) +
     '<div class="mv-body"><h3>' + esc(mv.name) + '</h3>';
-  if (pres) h += '<div class="pres">' + esc(pres) + '</div>';
+  if (pres) {
+    h += '<div class="pres">' + esc(pres) +
+      (it.holdSec ? ' <span class="timed">timed</span>' : '') + '</div>';
+  }
   if (it.load) h += '<div class="load">' + esc(it.load) + '</div>';
   if (it.restSec) h += '<div class="load">rest ' + it.restSec + 's</div>';
   h += '<div class="cue">' + esc(mv.cue) + '</div>';
@@ -216,9 +219,9 @@ var RING_C = 2 * Math.PI * 45;
 
 function startGuided(s) {
   G = {
-    s: s, idx: 0, set: 1, phase: 'work',
+    s: s, idx: 0, set: 1, side: 1, phase: 'work',
     startedAt: Date.now(), setsDone: 0,
-    restEnd: 0, restTotal: 0, timer: null, lastWhole: -1
+    cdEnd: 0, cdTotal: 0, cdNext: null, timer: null, lastWhole: -1
   };
   el('guided').hidden = false;
   document.body.style.overflow = 'hidden';
@@ -243,12 +246,18 @@ function isLastThing() {
   return G.idx >= G.s.items.length - 1 && G.set >= setsOf(it);
 }
 
+/* a timed work interval (plank hold, stretch) vs a rep-counted one (squats).
+   Only items carrying holdSec get a work timer. */
+function holdOf(it) { return it && it.holdSec ? it.holdSec : 0; }
+function sidesOf(it) { return (it && it.sides) || 1; }
+
 /* advance after a completed set / acknowledged step */
 function advance() {
   var it = curItem();
   if (G.set < setsOf(it)) { G.set++; }
   else { G.idx++; G.set = 1; }
 
+  G.side = 1;
   if (G.idx >= G.s.items.length) { G.phase = 'done'; drawGuided(); return; }
   G.phase = 'work';
   drawGuided();
@@ -256,67 +265,93 @@ function advance() {
 
 function doneSet() {
   G.setsDone++;
+  G.side = 1;
   var it = curItem();
-  if (it.restSec && !isLastThing()) {
-    startRest(it.restSec);
-  } else {
-    advance();
-  }
+  if (it.restSec && !isLastThing()) { startRest(it.restSec); }
+  else { advance(); }
 }
 
-function startRest(sec) {
-  G.phase = 'rest';
-  G.restTotal = sec;
-  G.restEnd = Date.now() + sec * 1000;
+/* ── one countdown engine, shared by rest and work holds ──────────────── */
+
+function startCountdown(sec, next) {
+  G.cdTotal = sec;
+  /* remaining is always derived from a wall-clock deadline, never by
+     accumulating interval ticks — that is what keeps it from drifting. */
+  G.cdEnd = Date.now() + sec * 1000;
+  G.cdNext = next;
   G.lastWhole = -1;
-  drawGuided();
   if (G.timer) clearInterval(G.timer);
-  /* remaining is always computed from a wall-clock deadline, never by
-     accumulating interval ticks — that is what keeps it accurate. */
-  G.timer = setInterval(tickRest, 100);
+  G.timer = setInterval(tickCountdown, 100);
+  drawGuided();
 }
 
-function tickRest() {
-  if (!G || G.phase !== 'rest') return;
-  var leftMs = G.restEnd - Date.now();
+function stopCountdown() {
+  if (G && G.timer) { clearInterval(G.timer); G.timer = null; }
+}
+
+function tickCountdown() {
+  if (!G || !G.timer) return;
+  var leftMs = G.cdEnd - Date.now();
   var left = Math.max(0, Math.ceil(leftMs / 1000));
 
   if (left !== G.lastWhole) {
     G.lastWhole = left;
     if (left === 3 || left === 2 || left === 1) { beep(880, 90); }
-    paintRest(left, leftMs);
+    paintCount(left, leftMs);
   } else {
     paintRing(leftMs);
   }
 
   if (leftMs <= 0) {
-    clearInterval(G.timer); G.timer = null;
+    stopCountdown();
     beep(1320, 260, 0.22); buzz(180);
-    advance();
+    var next = G.cdNext; G.cdNext = null;
+    if (next) next();
   }
 }
 
 function paintRing(leftMs) {
   var bar = document.querySelector('#guided .bar');
   if (!bar) return;
-  var frac = G.restTotal > 0
-    ? Math.max(0, Math.min(1, (leftMs / 1000) / G.restTotal)) : 0;
+  var frac = G.cdTotal > 0
+    ? Math.max(0, Math.min(1, (leftMs / 1000) / G.cdTotal)) : 0;
   bar.setAttribute('stroke-dashoffset', String(RING_C * (1 - frac)));
 }
 
-function paintRest(left, leftMs) {
+function paintCount(left, leftMs) {
   var n = document.querySelector('#guided .num');
   if (n) n.textContent = String(left);
   paintRing(leftMs);
 }
 
-function skipRest() {
-  if (G.timer) { clearInterval(G.timer); G.timer = null; }
-  advance();
+/* ── rest ─────────────────────────────────────────────────────────────── */
+
+function startRest(sec) { G.phase = 'rest'; startCountdown(sec, advance); }
+function skipRest() { stopCountdown(); advance(); }
+
+/* ── timed work hold ──────────────────────────────────────────────────── */
+
+function beginHold() {
+  G.phase = 'hold';
+  startCountdown(holdOf(curItem()), holdComplete);
 }
 
+function holdComplete() {
+  if (G.side < sidesOf(curItem())) {
+    G.side++;
+    G.phase = 'switch';
+    drawGuided();
+  } else {
+    doneSet();
+  }
+}
+
+/* a plank ends when the hips sag, not when the clock says so */
+function endHoldEarly() { stopCountdown(); holdComplete(); }
+
 function back() {
-  if (G.timer) { clearInterval(G.timer); G.timer = null; }
+  stopCountdown();
+  G.side = 1;
   if (G.set > 1) { G.set--; }
   else if (G.idx > 0) { G.idx--; G.set = setsOf(G.s.items[G.idx]); }
   G.phase = 'work';
@@ -363,27 +398,51 @@ function drawGuided() {
 
   var it = curItem();
   var mv = it.movement ? DATA.movements[it.movement] : null;
+  var hold = holdOf(it);
+  var sides = sidesOf(it);
+  var topBar = '<div class="g-top"><span class="g-prog">' + esc(progressLabel()) +
+    '</span><button class="ghost" id="x">Close</button></div>';
 
-  if (G.phase === 'rest') {
-    var left = Math.max(0, Math.ceil((G.restEnd - Date.now()) / 1000));
-    g.className = 'guided resting ' + cls;
-    g.innerHTML =
-      '<div class="g-top"><span class="g-prog">' + esc(progressLabel()) + '</span>' +
-      '<button class="ghost" id="x">Close</button></div>' +
-      '<div class="g-main">' +
-      '<div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true">' +
-      '<circle class="trk" cx="50" cy="50" r="45"></circle>' +
-      '<circle class="bar" cx="50" cy="50" r="45" stroke-dasharray="' + RING_C +
-      '" stroke-dashoffset="0"></circle></svg>' +
-      '<div class="num">' + left + '</div></div>' +
-      '<h2 class="g-name">Rest</h2>' +
-      '<div class="g-cue">' + esc(nextUpLabel()) + '</div>' +
-      '</div>' +
-      '<div class="g-actions"><button class="primary" id="skip">Skip rest</button>' +
-      '</div>';
+  /* rest and a timed work hold are the same countdown; only labels and the
+     action button differ */
+  if (G.phase === 'rest' || G.phase === 'hold') {
+    var left = Math.max(0, Math.ceil((G.cdEnd - Date.now()) / 1000));
+    var resting = G.phase === 'rest';
+    var sideTxt = (!resting && sides > 1)
+      ? (G.side === 1 ? 'First side' : 'Second side') : '';
+
+    g.className = 'guided ' + (resting ? 'resting ' : 'holding ') + cls;
+    g.innerHTML = topBar + '<div class="g-main">' + ringHTML(left) +
+      '<h2 class="g-name">' + esc(resting ? 'Rest' : (mv ? mv.name : it.label)) +
+      '</h2>' +
+      (!resting && it.sets
+        ? '<div class="g-set">Set ' + G.set + ' of ' + it.sets + '</div>' : '') +
+      (sideTxt ? '<div class="g-set">' + sideTxt + '</div>' : '') +
+      '<div class="g-cue">' +
+      esc(resting ? nextUpLabel() : (mv ? mv.cue : '')) + '</div></div>' +
+      '<div class="g-actions"><button class="primary" id="skip">' +
+      (resting ? 'Skip rest' : 'Done early') + '</button></div>';
+
     el('x').onclick = endGuided;
-    el('skip').onclick = skipRest;
-    paintRing(G.restEnd - Date.now());
+    el('skip').onclick = resting ? skipRest : endHoldEarly;
+    paintRing(G.cdEnd - Date.now());
+    return;
+  }
+
+  /* between the two sides of a per-side hold */
+  if (G.phase === 'switch') {
+    g.className = 'guided ' + cls;
+    g.innerHTML = topBar + '<div class="g-main">' +
+      (mv ? framesHTML(mv, true) : '') +
+      '<h2 class="g-name">Switch sides</h2>' +
+      '<div class="g-reps">' + hold + ' s</div>' +
+      '<div class="g-cue">' + esc(mv ? mv.cue : '') + '</div></div>' +
+      '<div class="g-actions">' +
+      '<button class="primary" id="start">Start second side</button>' +
+      '<div class="g-row"><button class="ghost" id="sk">Skip</button></div></div>';
+    el('x').onclick = endGuided;
+    el('start').onclick = beginHold;
+    el('sk').onclick = function () { G.side = 1; doneSet(); };
     return;
   }
 
@@ -392,9 +451,11 @@ function drawGuided() {
   var name = mv ? mv.name : it.label;
   var cue = mv ? mv.cue : (it.detail || '');
   var last = mv ? lastFor(mv.id) : null;
+  /* a kg field only makes sense for loaded, rep-counted work */
+  var bodyweight = /bodyweight/i.test(it.load || '');
+  var wantWeight = mv && it.sets && !hold && !bodyweight;
 
-  var h = '<div class="g-top"><span class="g-prog">' + esc(progressLabel()) +
-    '</span><button class="ghost" id="x">Close</button></div><div class="g-main">';
+  var h = topBar + '<div class="g-main">';
 
   if (mv) h += framesHTML(mv, true);
   h += '<h2 class="g-name">' + esc(name) + '</h2>';
@@ -403,15 +464,18 @@ function drawGuided() {
   if (cue) h += '<div class="g-cue">' + esc(cue) + '</div>';
   if (it.load) h += '<div class="g-load">' + esc(it.load) + '</div>';
 
-  if (mv && it.sets) {
+  if (wantWeight) {
     h += '<div class="wt"><label for="wt">kg</label>' +
       '<input id="wt" type="number" inputmode="decimal" step="0.5" min="0" ' +
       'value="' + esc(last ? last.weight : '') + '" aria-label="weight used"></div>';
   }
 
+  var primary = hold
+    ? ('Start ' + hold + ' s' + (sides > 1 ? ' — first side' : ''))
+    : (it.sets ? 'Set done' : 'Done');
+
   h += '</div><div class="g-actions">' +
-    '<button class="primary" id="done">' +
-    (it.sets ? 'Set done' : 'Done') + '</button>' +
+    '<button class="primary" id="done">' + esc(primary) + '</button>' +
     '<div class="g-row"><button class="ghost" id="bk">Back</button>' +
     '<button class="ghost" id="sk">Skip</button></div></div>';
 
@@ -421,11 +485,19 @@ function drawGuided() {
   el('x').onclick = endGuided;
   el('bk').onclick = back;
   el('sk').onclick = advance;
-  el('done').onclick = function () {
+  el('done').onclick = hold ? beginHold : function () {
     var w = el('wt');
     if (w && mv) recordWeight(mv.id, w.value);
     doneSet();
   };
+}
+
+function ringHTML(left) {
+  return '<div class="ring"><svg viewBox="0 0 100 100" aria-hidden="true">' +
+    '<circle class="trk" cx="50" cy="50" r="45"></circle>' +
+    '<circle class="bar" cx="50" cy="50" r="45" stroke-dasharray="' + RING_C +
+    '" stroke-dashoffset="0"></circle></svg>' +
+    '<div class="num">' + left + '</div></div>';
 }
 
 /* ── routing + boot ───────────────────────────────────────────────────── */

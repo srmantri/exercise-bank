@@ -25,7 +25,7 @@ function has(hay, needle, label) {
 /* ids that app.js looks up *inside* a container it has just re-rendered.
    Assigning innerHTML in a real browser destroys those nodes and their
    handlers, so the stub must do the same or clicks fire stale callbacks. */
-const CHILD_IDS = ['x', 'x2', 'done', 'skip', 'bk', 'sk', 'wt', 'go'];
+const CHILD_IDS = ['x', 'x2', 'done', 'skip', 'bk', 'sk', 'wt', 'go', 'start'];
 
 function makeEl(id) {
   return {
@@ -176,12 +176,15 @@ function runAssertions() {
     if (guided.innerHTML.indexOf('Session done') !== -1) break;
     const done = els.done && els.done._handlers.click ? els.done : null;
     const skip = els.skip && els.skip._handlers.click ? els.skip : null;
+    const start = els.start && els.start._handlers.click ? els.start : null;
     if (done) {
       if (els.wt && els.wt.value === '') els.wt.value = '12';   // log a weight
       done.click();
       setsClicked++;
+    } else if (start) {
+      start.click();                // "switch sides" screen
     } else if (skip) {
-      skip.click();                 // rest screen -> skip straight through
+      skip.click();                 // rest, or ending a hold early
       restsSeen++;
     } else {
       break;
@@ -190,7 +193,72 @@ function runAssertions() {
   }
   ok(setsClicked === expectedSets,
     'clicked every set/step (' + setsClicked + ' of ' + expectedSets + ')');
-  ok(restsSeen > 0, 'rest screens appeared between sets (' + restsSeen + ')');
+  ok(restsSeen > 0, 'rest/hold screens appeared between sets (' + restsSeen + ')');
+
+  /* ── timed work holds ──────────────────────────────────────────────────
+     setInterval is a no-op in this harness, so a countdown never completes on
+     its own; the hold is ended via "Done early", which is also the real
+     behaviour for a plank that fails before the clock runs out. */
+  function jumpTo(sessionId, movementId) {
+    const s = sessions.sessions.find(x => x.id === sessionId);
+    const idx = s.items.findIndex(i => i.movement === movementId);
+    ok(idx >= 0, 'found ' + movementId + ' in ' + sessionId);
+    loc.hash = '#' + sessionId;
+    listeners.hashchange();
+    doc.getElementById('go').click();
+    sandbox.G.idx = idx;
+    sandbox.G.set = 1;
+    sandbox.G.side = 1;
+    sandbox.G.phase = 'work';
+    sandbox.drawGuided();
+    return s.items[idx];
+  }
+
+  // a rep-counted lift: no timer, and it does take a weight
+  jumpTo('strength-a', 'goblet-squat');
+  has(guided.innerHTML, 'Set done', 'goblet squat: rep-counted, no work timer');
+  ok(guided.innerHTML.indexOf('Start ') === -1, 'goblet squat: no Start button');
+  ok(!!els.wt, 'goblet squat: offers a kg field');
+
+  // a timed hold: timer, and no weight field (bodyweight)
+  const plank = jumpTo('strength-a', 'plank');
+  ok(plank.holdSec === 30, 'plank carries holdSec=30');
+  has(guided.innerHTML, 'Start 30 s', 'plank: offers a 30 s work timer');
+  ok(!els.wt, 'plank: no kg field (bodyweight)');
+  els.done.click();
+  ok(sandbox.G.phase === 'hold', 'plank: entered the hold phase');
+  has(guided.innerHTML, 'class="ring"', 'plank: hold screen shows the ring');
+  has(guided.innerHTML, 'Done early', 'plank: can end the hold early');
+  ok(sandbox.G.cdTotal === 30, 'plank: countdown armed for 30 s');
+  ok(sandbox.G.cdEnd > Date.now() + 28000, 'plank: deadline ~30 s out');
+  els.skip.click();
+  ok(sandbox.G.phase === 'rest', 'plank: hold -> rest (it has restSec)');
+
+  // a per-side hold runs once per side with a switch screen between
+  const ham = jumpTo('mobility', 'hamstring-stretch');
+  ok(ham.holdSec === 45 && ham.sides === 2, 'hamstring stretch: 45 s, 2 sides');
+  has(guided.innerHTML, 'first side', 'hamstring: names the first side');
+  els.done.click();
+  ok(sandbox.G.phase === 'hold' && sandbox.G.side === 1, 'hamstring: side 1 holding');
+  ok(sandbox.G.cdTotal === 45, 'hamstring: countdown armed for 45 s');
+  els.skip.click();
+  ok(sandbox.G.phase === 'switch', 'hamstring: goes to the switch screen');
+  has(guided.innerHTML, 'Switch sides', 'hamstring: prompts to switch');
+  els.start.click();
+  ok(sandbox.G.phase === 'hold' && sandbox.G.side === 2, 'hamstring: side 2 holding');
+  els.skip.click();
+  ok(sandbox.G.phase !== 'hold' && sandbox.G.phase !== 'switch',
+    'hamstring: both sides done, moved on');
+
+  /* every holdSec in the data agrees with the number shown on the card */
+  sessions.sessions.forEach(s => {
+    s.items.forEach(it => {
+      if (!it.holdSec) return;
+      const shown = it.reps || it.prescription || '';
+      ok(String(shown).indexOf(String(it.holdSec)) !== -1,
+        s.id + '/' + it.movement + ': holdSec matches the displayed "' + shown + '"');
+    });
+  });
 
   has(guided.innerHTML, 'Session done', 'guided reached the summary');
   has(guided.innerHTML, 'w/c 26-Oct', 'summary names the Weekly Log row');
