@@ -136,7 +136,7 @@ function renderLanding() {
   document.title = 'Exercise Bank — ' + w.label;
 }
 
-function movementCardHTML(it) {
+function movementCardHTML(it, idx) {
   var mv = DATA.movements[it.movement];
   if (!mv) return '';
   var pres = it.sets ? (it.sets + ' × ' + it.reps) : (it.prescription || '');
@@ -157,6 +157,15 @@ function movementCardHTML(it) {
   }
   if (mv.note) h += '<div class="badge">' + esc(mv.note) + '</div>';
   h += '</div></div>';
+
+  /* a timed movement gets its own timer right here on the card — you should
+     not have to start a whole guided session to time one plank */
+  if (it.holdSec) {
+    h += '<div class="tbar"><button class="tbtn" id="tb' + idx + '">' +
+      'Start ' + it.holdSec + ' s' +
+      (sidesOf(it) > 1 ? ' × ' + sidesOf(it) + ' sides' : '') +
+      '</button></div>';
+  }
 
   /* an alternative movement, for when the prescribed one isn't available today.
      Guided mode ignores `alt` — it only ever walks `movement`. */
@@ -197,8 +206,8 @@ function renderSession(id) {
   if (s.summary) h += '<div class="step"><div class="det">' + esc(s.summary) +
     '</div></div>';
 
-  s.items.forEach(function (it) {
-    h += it.movement ? movementCardHTML(it) : stepHTML(it);
+  s.items.forEach(function (it, i) {
+    h += it.movement ? movementCardHTML(it, i) : stepHTML(it);
   });
 
   h += '<div class="foot"><a href="#">← all sessions</a></div></div>';
@@ -209,6 +218,18 @@ function renderSession(id) {
     initAudio();          // must happen inside the gesture
     startGuided(s);
   });
+
+  /* per-card timers for the timed movements */
+  s.items.forEach(function (it, i) {
+    if (!it.holdSec) return;
+    var b = el('tb' + i);
+    if (!b) return;
+    b.addEventListener('click', function () {
+      initAudio();        // must happen inside the gesture
+      startSolo(s, i);
+    });
+  });
+
   window.scrollTo(0, 0);
 }
 
@@ -227,6 +248,20 @@ function startGuided(s) {
   document.body.style.overflow = 'hidden';
   acquireWake();
   drawGuided();
+}
+
+/* one timed movement, launched from its own card — not the whole session.
+   Reuses the same countdown as guided mode rather than a second timer. */
+function startSolo(s, idx) {
+  G = {
+    s: s, idx: idx, set: 1, side: 1, phase: 'work', solo: true,
+    startedAt: Date.now(), setsDone: 0,
+    cdEnd: 0, cdTotal: 0, cdNext: null, timer: null, lastWhole: -1
+  };
+  el('guided').hidden = false;
+  document.body.style.overflow = 'hidden';
+  acquireWake();
+  beginHold();
 }
 
 function endGuided() {
@@ -266,6 +301,9 @@ function advance() {
 function doneSet() {
   G.setsDone++;
   G.side = 1;
+  /* a solo timer stops when its hold is done — it must not drag you into the
+     rest of the session you happened to launch it from */
+  if (G.solo) { G.phase = 'done'; drawGuided(); return; }
   var it = curItem();
   if (it.restSec && !isLastThing()) { startRest(it.restSec); }
   else { advance(); }
@@ -377,6 +415,28 @@ function nextUpLabel() {
 function drawGuided() {
   var g = el('guided');
   var cls = kindClass(G.s.kind);
+
+  /* a solo card timer finishes on its own small screen, with the option to
+     run it again — a 3-set plank is three taps, not a whole session */
+  if (G.phase === 'done' && G.solo) {
+    var sit = G.s.items[G.idx];
+    var smv = sit && sit.movement ? DATA.movements[sit.movement] : null;
+    g.className = 'guided ' + cls;
+    g.innerHTML =
+      '<div class="g-top"><span class="g-prog">' + esc(G.s.name) + '</span>' +
+      '<button class="ghost" id="x">Close</button></div>' +
+      '<div class="g-main"><div class="done-wrap">' +
+      '<h2>' + esc(sit.holdSec) + ' s done</h2>' +
+      '<div class="done-stats">' + esc(smv ? smv.name : '') +
+      (sidesOf(sit) > 1 ? ' · both sides' : '') + '</div>' +
+      '<button class="primary" id="again">Again</button>' +
+      '<div class="g-row" style="margin-top:9px">' +
+      '<button class="ghost" id="x2">Close</button></div>' +
+      '</div></div>';
+    el('x').onclick = el('x2').onclick = endGuided;
+    el('again').onclick = function () { G.side = 1; beginHold(); };
+    return;
+  }
 
   if (G.phase === 'done') {
     var mins = Math.max(1, Math.round((Date.now() - G.startedAt) / 60000));

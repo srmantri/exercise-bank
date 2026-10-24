@@ -171,6 +171,15 @@ button:active { transform: scale(.99); }
   border-radius: 8px; font-size: .8rem; color: var(--ink);
 }
 
+/* per-card timer for a timed movement */
+.tbar { border-top: 1px solid var(--line); padding: 10px 12px; }
+.tbtn {
+  width: 100%; padding: 13px; font-size: 1rem; font-weight: 700;
+  background: var(--accent); color: #0b0f12; border-color: transparent;
+  border-radius: 11px;
+}
+@media (prefers-color-scheme: light) { .tbtn { color: #fff; } }
+
 /* alternative movement, shown in the reference only — never in guided mode */
 .alt { border-top: 1px solid var(--line); padding: 10px 12px 12px;
        background: color-mix(in srgb, var(--surface-2) 55%, transparent); }

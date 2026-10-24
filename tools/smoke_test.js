@@ -25,7 +25,8 @@ function has(hay, needle, label) {
 /* ids that app.js looks up *inside* a container it has just re-rendered.
    Assigning innerHTML in a real browser destroys those nodes and their
    handlers, so the stub must do the same or clicks fire stale callbacks. */
-const CHILD_IDS = ['x', 'x2', 'done', 'skip', 'bk', 'sk', 'wt', 'go', 'start'];
+const CHILD_IDS = ['x', 'x2', 'done', 'skip', 'bk', 'sk', 'wt', 'go', 'start',
+  'again'];
 
 function makeEl(id) {
   return {
@@ -195,6 +196,12 @@ function runAssertions() {
     'clicked every set/step (' + setsClicked + ' of ' + expectedSets + ')');
   ok(restsSeen > 0, 'rest/hold screens appeared between sets (' + restsSeen + ')');
 
+  /* these must be asserted HERE, while the overlay still holds the summary —
+     later blocks close it, which empties #guided */
+  has(guided.innerHTML, 'Session done', 'guided reached the summary');
+  has(guided.innerHTML, 'w/c 26-Oct', 'summary names the Weekly Log row');
+  ok(steps < LIMIT, 'guided session terminated (no infinite loop)');
+
   /* ── timed work holds ──────────────────────────────────────────────────
      setInterval is a no-op in this harness, so a countdown never completes on
      its own; the hold is ended via "Done early", which is also the real
@@ -250,6 +257,63 @@ function runAssertions() {
   ok(sandbox.G.phase !== 'hold' && sandbox.G.phase !== 'switch',
     'hamstring: both sides done, moved on');
 
+  /* ── the timer must be reachable from the card itself ──────────────────
+     This is the bug the first attempt had: the countdown existed only behind
+     "Start guided session", so a plank card had nothing to tap. */
+  function cardTimerIdOf(sessionId, movementId) {
+    const s = sessions.sessions.find(x => x.id === sessionId);
+    return 'tb' + s.items.findIndex(i => i.movement === movementId);
+  }
+
+  loc.hash = '#strength-a';
+  listeners.hashchange();
+  const plankBtn = cardTimerIdOf('strength-a', 'plank');
+  has(app.innerHTML, 'id="' + plankBtn + '"', 'plank card has its own timer button');
+  has(app.innerHTML, 'Start 30 s', 'plank card button reads "Start 30 s"');
+  ok(!!(els[plankBtn] && els[plankBtn]._handlers.click),
+    'plank card timer button is wired');
+
+  // a rep-counted movement must NOT get a card timer
+  const squatBtn = cardTimerIdOf('strength-a', 'goblet-squat');
+  ok(app.innerHTML.indexOf('id="' + squatBtn + '"') === -1,
+    'goblet squat card has no timer button');
+
+  // count card timers against the number of timed items in the session
+  const timedInA = sessions.sessions.find(s => s.id === 'strength-a')
+    .items.filter(i => i.holdSec).length;
+  const btnCount = (app.innerHTML.match(/class="tbtn"/g) || []).length;
+  ok(btnCount === timedInA,
+    'strength-a shows ' + timedInA + ' card timer(s), found ' + btnCount);
+
+  // tapping it runs that one movement, and must not drag us into the session
+  els[plankBtn].click();
+  ok(guided.hidden === false, 'card timer opens the full-screen countdown');
+  ok(sandbox.G && sandbox.G.solo === true, 'card timer runs in solo mode');
+  ok(sandbox.G.phase === 'hold', 'card timer goes straight into the hold');
+  ok(sandbox.G.cdTotal === 30, 'card timer armed for 30 s');
+  has(guided.innerHTML, 'class="ring"', 'card timer shows the ring');
+
+  els.skip.click();                                  // "Done early"
+  ok(sandbox.G.phase === 'done', 'solo hold ends on its own done screen');
+  has(guided.innerHTML, '30 s done', 'solo done screen names the duration');
+  ok(!!(els.again && els.again._handlers.click), 'solo done offers "Again"');
+  ok(guided.innerHTML.indexOf('Log it Sunday') === -1,
+    'solo done does NOT show the full-session summary');
+
+  els.again.click();
+  ok(sandbox.G.phase === 'hold' && sandbox.G.solo === true,
+    '"Again" re-runs the same hold');
+  els.skip.click();
+  els.x.click();
+  ok(guided.hidden === true, 'closing the solo timer hides the overlay');
+
+  // a per-side card timer advertises both sides
+  loc.hash = '#mobility';
+  listeners.hashchange();
+  const hamBtn = cardTimerIdOf('mobility', 'hamstring-stretch');
+  has(app.innerHTML, 'id="' + hamBtn + '"', 'hamstring card has a timer button');
+  has(app.innerHTML, 'Start 45 s × 2 sides', 'hamstring button names both sides');
+
   /* every holdSec in the data agrees with the number shown on the card */
   sessions.sessions.forEach(s => {
     s.items.forEach(it => {
@@ -259,10 +323,6 @@ function runAssertions() {
         s.id + '/' + it.movement + ': holdSec matches the displayed "' + shown + '"');
     });
   });
-
-  has(guided.innerHTML, 'Session done', 'guided reached the summary');
-  has(guided.innerHTML, 'w/c 26-Oct', 'summary names the Weekly Log row');
-  ok(steps < LIMIT, 'guided session terminated (no infinite loop)');
 
   /* ── weight persistence ── */
   const log = JSON.parse(store['eb.log.v1'] || '{}');
